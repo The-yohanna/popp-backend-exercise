@@ -9,6 +9,7 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
+    "types": ["node", "mocha"],
     "baseUrl": ".",
     "paths": {
       "@/*": [

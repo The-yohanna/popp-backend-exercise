@@ -1,29 +1,8 @@
-# Backend Coding Exercise Project Template
+# Backend Coding Exercise Project
 
-This project is a template for a backend system using TypeScript, Node.js, Express, PostgreSQL, and Prisma ORM. It
-provides a foundation for building a robust API with database integration, perfect for handling job applications and
-candidate information.
+This project implements an integration system for AI messaging, it has a webhook handler that handles incoming job application events creating new conversations and exposes endpoints for retrieving conversations.
 
-## Creating a New Project from This Template
-
-To create a new project using this template:
-
-1. Navigate to the GitHub
-   repository: [https://github.com/AtlasNft/popp-backend-coding-exercise](https://github.com/AtlasNft/popp-backend-coding-exercise)
-
-2. Click on the "Use this template" button near the top-right of the page.
-
-3. Choose a name for your new repository and select where you want to create it.
-
-4. Click "Create repository from template".
-
-5. Once created, clone your new repository to your local machine:
-   ```
-   git clone https://github.com/<your-username>/<your-new-repo-name>.git
-   cd <your-new-repo-name>
-   ```
-
-6. Follow the "Getting Started" instructions below to set up your new project.
+It is developed using TypeScript, Node.js, Express, PostgreSQL, and Prisma ORM. It uses Mocha/Chai for testing.
 
 ## Prerequisites
 
@@ -36,11 +15,7 @@ Before you begin, ensure you have the following installed on your system:
 
 ## Getting Started
 
-1. If you haven't already, clone your repository:
-   ```
-   git clone https://github.com/<your-username>/<your-new-repo-name>.git
-   cd <your-new-repo-name>
-   ```
+1. Clone this repository.
 
 2. Install dependencies:
    ```
@@ -51,6 +26,7 @@ Before you begin, ensure you have the following installed on your system:
    ```
    POSTGRES_PASSWORD=your_postgres_password
    DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD}@localhost:5432/postgres
+   API_TOKEN=your_api_token
    ```
    Note: The `DATABASE_URL` format is `postgresql://username:password@host:port/database_name`
 
@@ -68,34 +44,15 @@ Before you begin, ensure you have the following installed on your system:
    ```
    yarn dev
    ```
+   
+7. You can run the tests using:
+    ```
+   yarn test
+    ```
 
-The application should now be running at `http://localhost:3000`. You can verify this by accessing the hello world
-endpoint at `http://localhost:3000/api/hello`.
-
-## Project Structure
-
-```
-popp-backend-coding-exercise/
-├── Dockerfile
-├── README.md
-├── docker-compose.yml
-├── package.json
-├── prisma/
-│   ├── migrations/
-│   └── schema.prisma
-├── src/
-│   ├── app.ts
-│   ├── common/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── routes/
-│   ├── server.ts
-│   └── services/
-├── tests/
-├── tsconfig.json
-├── webpack.config.js
-└── yarn.lock
-```
+The application should now be running at `http://localhost:3000`. 
+You can verify this by accessing the health check endpoint at `http://localhost:3000/api/status`.
+The list of available endpoints can be found in `src/routes/index.ts`.
 
 ## Available Scripts
 
@@ -107,13 +64,31 @@ popp-backend-coding-exercise/
 - `yarn prisma:migrate`: Run Prisma migrations in development (also generates the client)
 - `yarn prisma:migrate:deploy`: Run Prisma migrations in production (also generates the client)
 - `yarn prisma:studio`: Open Prisma Studio for database management
+- `yarn test`: To run the test suites
 
 ## API Endpoints
 
-1. Hello World
-    - **URL:** `/api/hello`
-    - **Method:** GET
-    - **Response:** Returns a simple string
+1. `GET api/status` returns a simple health check string
+2. `GET api/conversations` returns all the conversations
+3. `GET api/conversations/:id` returns a single conversation with the given id.
+4. `GET api/conversations/:status` filters the conversations by status
+5. `POST api/webhook/job-application` handles incoming job events creating new conversations after validation.
+
+Sample payload for the webhook handler
+
+```json
+{
+  "id": "application-i136",
+  "job_id": "associated-job-i136",
+  "candidate_id": "candidate-i136",
+  "candidate": {
+    "phone_number": "+1234567890",
+    "first_name": "John",
+    "last_name": "Doe",
+    "email_address": "john.doe@example.com"
+  }
+}
+```
 
 ## Database Schema
 
@@ -132,67 +107,5 @@ The project uses Prisma ORM with a PostgreSQL database. Here's an overview of th
 
 For the full schema details, refer to the `prisma/schema.prisma` file in the project.
 
-### Making Changes to the Schema
 
-If you make changes to the `schema.prisma` file, follow these steps:
 
-1. Update the `schema.prisma` file with your changes.
-2. Run the migration command:
-   ```
-   yarn prisma:migrate
-   ```
-   This command will generate a new migration, apply it to your database, and generate the updated Prisma client.
-
-## Development with Docker
-
-If you prefer to run the entire application using Docker:
-
-1. Build and start the Docker containers:
-   ```
-   yarn build:start
-   ```
-
-2. Run the database migrations:
-   ```
-   docker-compose exec app yarn prisma:migrate:deploy
-   ```
-
-The application will be available at `http://localhost:3000`, and the PostgreSQL database will be accessible on port
-5432.
-
-## Managing the PostgreSQL Volume
-
-The PostgreSQL data is persisted in a Docker volume. If you need to delete this volume and start fresh, you can use the
-following command:
-
-```
-docker volume remove <your-new-repo-name>_postgres-data
-```
-
-Note: This will delete all data in the database. Use with caution.
-
-## Troubleshooting
-
-- If you encounter connection issues with the database, ensure that the PostgreSQL container is running and that the
-  `DATABASE_URL` in your `.env` file is correct.
-- If you see Prisma-related errors, try running `yarn prisma:generate` to ensure your Prisma client is up-to-date with
-  your schema.
-- For Docker-related issues, ensure Docker is running on your machine and try rebuilding the containers with
-  `docker-compose up --build`.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Additional Notes
-
-- The project uses Prisma as an ORM. When you run migrations (either `prisma:migrate` or `prisma:migrate:deploy`), it
-  automatically generates the Prisma client.
-- Always run migrations after pulling changes from the repository that include schema modifications.
-- The `src/` directory contains the main application code, including controllers, routes, and services.
-- Tests can be added to the `tests/` directory.
-- The project uses Webpack for bundling, configured in `webpack.config.js`.
-
-## License
-
-This project is licensed under the MIT License.
